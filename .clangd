@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: [-stdc++23, -Wall]
