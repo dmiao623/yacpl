@@ -8,8 +8,8 @@
 #include <utility>
 #include <vector>
 
-#include "graph.hpp"
 #include "../data-structures/min-priority-queue.hpp"
+#include "utils.hpp"
 
 namespace internal {
 
@@ -30,7 +30,8 @@ bool check_nonnegative_edges(const weighted_graph_t<T> &graph) {
 /** Returns array d s.t. d_u represents the shortest path source -> u. We assume
  *  that diameter(graph) <= T::max(), i.e. path length never overflows. */
 template <typename T>
-std::vector<T> dijkstra(const weighted_graph_t<T> &graph, graph_node_t source) {
+[[nodiscard]] std::vector<T> dijkstra(const weighted_graph_t<T> &graph,
+                                      graph_node_t source) {
   assert(internal::check_weighted_graph(graph));
   assert(internal::check_nonnegative_edges(graph));
   assert(internal::check_valid_node(graph, source));
@@ -58,12 +59,14 @@ std::vector<T> dijkstra(const weighted_graph_t<T> &graph, graph_node_t source) {
   return distances;
 }
 
-/** Retains reachable shortest-path edges. Zero-weight cycles are preserved,
- *  so this is a DAG only when no such cycles exist.
- *  `distances` must be the result of dijkstra(graph, source).
+/** Returns D which is a subgraph of G, s.t. e in D iff e in G and e is in at
+ * least one shortest path from source to u, for any u. D has the property that
+ * any shortest path in G is contained in D. Note that D may not be a DAG due to
+ * the presence of 0-weight cycles.
+ *
  */
 template <typename T>
-weighted_graph_t<T>
+[[nodiscard]] weighted_graph_t<T>
 dijkstra_shortest_path_graph(const weighted_graph_t<T> &graph,
                              graph_node_t source,
                              const std::vector<T> &distances) {
@@ -86,12 +89,4 @@ dijkstra_shortest_path_graph(const weighted_graph_t<T> &graph,
     }
   }
   return dag;
-}
-
-/** Compatibility name: zero-weight cycles mean the result may not be a DAG. */
-template <typename T>
-weighted_graph_t<T> dijkstra_dag(const weighted_graph_t<T> &graph,
-                                 graph_node_t source,
-                                 const std::vector<T> &distances) {
-  return dijkstra_shortest_path_graph(graph, source, distances);
 }
