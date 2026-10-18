@@ -32,6 +32,30 @@ concept string_like_over_alphabet =
 
 using index_t = uint32_t;
 
+struct lowercase_alphabet {
+  using symbol_t = char;
+  static constexpr index_t size = 26;
+  static constexpr index_t index(char c) { return c - 'a'; }
+};
+
+static_assert(internal::alphabet<lowercase_alphabet>);
+
+struct upperlowercase_alphabet {
+  using symbol_t = char;
+  static constexpr index_t size = 52;
+  static constexpr index_t index(char c) { return c < 'a' ? c - 'A' : c - 'a'; }
+};
+
+static_assert(internal::alphabet<upperlowercase_alphabet>);
+
+template <index_t upper_bound> struct integer_alphabet {
+  using symbol_t = uint32_t;
+  static constexpr index_t size = upper_bound;
+  static constexpr index_t index(uint32_t c) { return c; }
+};
+
+static_assert(internal::alphabet<integer_alphabet<4>>);
+
 [[nodiscard]] std::vector<index_t> str_pi(const internal::string_like auto &s) {
   index_t n = static_cast<index_t>(std::ranges::size(s));
   std::vector<index_t> pi(n);
